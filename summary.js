@@ -7,9 +7,29 @@ chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	console.log("domain: " + domain);
 	console.log("url: " + url);
 	
-	if (domain.match(/reddit.com/) != null) {
+	if (domain.match(/reddit.com$/) != null) {
 		// Site is reddit do scan //
 		redditScan();
+	}
+});
+
+chrome.runtime.onMessage.addListener(function(request, sender, callback) {
+	if (request.type == "summariseSelected") {
+		var text = request.selectedText;
+		
+		var summary = new Summariser();
+		summary.setString(text);
+		summary.remove_brackets();
+		numsentences = summary.s_split();
+		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.2), 5));
+		summary.summarise(summarylen);
+		
+		var el = window.getSelection().getRangeAt(0).startContainer;
+		
+		var insert = "<div class='summarize-summary'><div class='summarize-heading'>Summary</div><div class='summarize-content'>";
+		insert += summary.response + "</div></div>";
+		
+		$(el).parent().prepend(insert);
 	}
 });
 
@@ -20,7 +40,7 @@ function redditScan() {
 	}
 	
 	console.log("reddit comments: " + $("div.usertext-body>.md").length);
-	$("div.usertext-body .md").each(function() {
+	$(".commentarea div.usertext-body .md").each(function() {
 		text = this.innerHTML;
 		if (text.length < 1000) return;	// Not long enough
 		
@@ -30,9 +50,8 @@ function redditScan() {
 		numsentences = summary.s_split();
 		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.2), 5));
 		summary.summarise(summarylen);
-		console.log("Cutting it down: " + numsentences + " vs " + summarylen + "\n\n" + text + "\nsummary:\n" + summary.response);
 		
-		pre = "<div class='summarize-summary .reddit'><div class='summarize-content'>";
+		pre = "<div class='summarize-summary .reddit'>";
 		
 		var tldr = getTlDr(text);
 		if (tldr != "") {

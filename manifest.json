@@ -5,7 +5,8 @@
 	"version": "0.1",
 	
 	"icons": {
-		"128": "128.png"
+		"16": "tldrcontext.png",
+		"128": "tldr.png"
 	},
 	
 	"background": {
@@ -19,6 +20,6 @@
 	}],
 	
 	"permissions": [
-		"tabs", "http://*/*"
+		"tabs", "http://*/*", "contextMenus"
 	]
 }
