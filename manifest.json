@@ -1,7 +1,7 @@
 {
 	"manifest_version": 2,
 	"name": "tl;dr Summarizer",
-	"description": "tl;dr Summarizer finds long posts on Reddit (and other websites) condenses down the text, placing the summary above the comment for easy reading. Sick of people not including a tl;dr? This extension makes it easy to know what is worth reading, and what is not.",
+	"description": "tl;dr Summarizer finds long comments on Reddit and summarises them! In fact, you can summarise any lengthy article online.",
 	"version": "0.1",
 	
 	"icons": {
