@@ -66,7 +66,9 @@ function redditScan() {
 		if (tldr != "") {
 			pre += "<div class='summarize-tldr'><div class='summarize-heading'>User tl;dr<div class='summarize-hide'>hide</div></div>" + tldr + "</div><div class='summarize-heading'>Summary</div><div class='summarize-content'>";
 		} else {
-			pre += "<div class='summarize-heading'>Summary<div class='summarize-hide'>hide</div></div><div class='summarize-content'>"
+			pre += "<div class='summarize-heading'>Summary (";
+			pre += Math.floor(summary.response.length / text.length * 100) + "%)";
+			pre += "<div class='summarize-hide'>hide</div></div><div class='summarize-content'>"
 		}
 		
 		$(this).parent().prepend(pre + summary.response + "</div></div>");

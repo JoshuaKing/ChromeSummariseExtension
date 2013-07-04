@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "tl;dr Summarizer",
 	"description": "tl;dr Summarizer finds long comments on Reddit and summarises them! In fact, you can summarise any lengthy article online.",
-	"version": "0.26",
+	"version": "0.27",
 	
 	"icons": {
 		"16": "tldrcontext.png",
