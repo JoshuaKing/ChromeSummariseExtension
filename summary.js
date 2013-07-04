@@ -4,14 +4,18 @@ var url = "";
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	domain = document.domain;
 	url = response.url;
-	console.log("domain: " + domain);
-	console.log("url: " + url);
 	
 	if (domain.match(/reddit.com$/) != null) {
 		// Site is reddit do scan //
 		redditScan();
 	}
 });
+
+function updateHide() {
+	$(".summarize-hide").click(function() {
+		$(this).parents(".summarize").hide();
+	});
+}
 
 function getSummary(text) {
 	var summary = new Summariser();
@@ -52,7 +56,7 @@ function getTlDrDiv(tldr) {
 	
 	div = $(div);
 	tldr = tldr.replace(/[<]\/?br\/?[>]/g, "[br]");
-	div.find(".summarize-user-tldr").html(document.createTextNode(summary));
+	div.find(".summarize-user-tldr").html(document.createTextNode(tldr));
 	var onlybr = div.find(".summarize-user-tldr").text().replace(/\[br\]/g, "<br>");
 	div.find(".summarize-user-tldr").html(onlybr);
 	
@@ -76,17 +80,16 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		
 		var el = window.getSelection().getRangeAt(0).startContainer;		
 		$(el).parent().prepend(getSummaryDiv(false, summary, text));
+		updateHide();
 	}
 });
 
 function redditScan() {
 	if (url.match(/reddit.com\/.*\/comments/) == null) {
-		console.log("not reddit comments");
 		return;	// Not comments section
 	}
 	
-	console.log("reddit comments: " + $("div.usertext-body>.md").length);
-	$(".commentarea div.usertext-body .md").each(function() {
+	$(".commentarea div.usertext-body .md, .expando div.usertext-body .md").each(function() {
 		text = this.innerHTML;
 		if (text.length < 1000) return;	// Not long enough
 		
@@ -97,26 +100,30 @@ function redditScan() {
 		
 		if (tldr != "") {
 			var tldrDiv = getTlDrDiv(tldr);
-			summaryDiv.find(".summarize").prepend(tldrDiv);
+			summaryDiv.find(".summarize-summary").prepend(tldrDiv);
 		}
 		
 		
 		$(this).parent().prepend(summaryDiv);
-		
-		$(".summarize-hide").click(function() {
-			$(this).parent(".summarize-summary").hide();
-		});
 	});
+	
+	updateHide();
 }
 
 function getTlDr(text) {
-	if (text.indexOf("tl;dr") < 0) return "";
+	if (text.search(/tl;?dr/i) < 0) return "";
 	var tldr = "";
 	text = text.replace(/<[^>]+(>|$)/g, "");
+	text = text.replace(/[<>]/g, "");
 	
-	if (text.lastIndexOf("tl;dr") < text.length / 2) {
-		return tldr = text.replace(/[\s\S]*(tl;{0,1}dr\b(?:[^.!?]+[.!?\b]))/i, "$1");
+	if (text.search(/.*tl;?dr/i) < text.length / 2) {
+		return tldr = text.match(/.*?(tl;?dr\b(?:[^.!?]+[.!?\b]))/i)[0];
 	}
-	tldr = text.replace(/[\s\S]*(tl;{0,1}dr\b(?:[^.!?]+[.!?\b]){1,5})/i, "$1");
+	tldr = text.match(/.*(tl;?dr\b(?:[^.!?]+[.!?\b]){1,5})/i)[0];
+	
+	var edit = tldr.search(/edit:/i);
+	if (edit >= 0) {
+		tldr = tldr.substr(0, edit);
+	}
 	return tldr;
 }
