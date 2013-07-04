@@ -33,21 +33,22 @@
 	width: 100%;
 }
 
-.summarize-pdf>.summarize-summary {
+.summarize-pdf .summarize-summary {
 	max-width: 50%;
 	width: 50%;
 	margin: 0;
 	padding-bottom: 20px;
 	margin-left: 25%;
-	background-color: white;
+	background-color: #ff5522;
+	color: white;
 }
 
-.summarize-pdf>.summarize-summary .summarize-heading {
+.summarize-pdf .summarize-summary .summarize-heading {
 	/*display: inline-block;*/
 }
 
-.summarize-pdf>.summarize-summary .summarize-hide {
-	colour: #444;
+.summarize-pdf .summarize-summary .summarize-hide {
+	color: white;
 	/*float: none;
 	margin-left: 20px;
 	display: inline-block;*/
