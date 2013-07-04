@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		summary.setString(text);
 		summary.remove_brackets();
 		numsentences = summary.s_split();
-		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.3), 5));
+		summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.3), 6));
 		summary.summarise(summarylen);
 
 		if (url.search(/.pdf$/) >= 0) {
@@ -57,7 +57,7 @@ function redditScan() {
 		summary.setString(text);
 		summary.remove_brackets();
 		numsentences = summary.s_split();
-		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.2), 5));
+		summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.2), 5));
 		summary.summarise(summarylen);
 		
 		pre = "<div class='summarize-summary .reddit'>";
