@@ -23,6 +23,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		numsentences = summary.s_split();
 		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.3), 5));
 		summary.summarise(summarylen);
+
+		if (url.search(/.pdf$/) >= 0) {
+			$("body").prepend("<div class='summarize-pdf'><div class='summarize-summary'><div class='summarize-heading'>Summary</div><div class='summarize-content'>" + summary.response + "</div></div></div>");
+			return;
+		}
 		
 		var el = window.getSelection().getRangeAt(0).startContainer;
 		

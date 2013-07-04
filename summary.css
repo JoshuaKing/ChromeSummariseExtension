@@ -22,3 +22,16 @@
 .summarize-summary .summarize-tldr {
 	margin-bottom: 5px;
 }
+
+.summarize-pdf {
+	background-color: #CCCCCC;
+}
+
+.summarize-pdf>.summarize-summary {
+	max-width: 50%;
+	width: 50%;
+	margin: 0;
+	padding-bottom: 20px;
+	margin-left: 25%;
+	background-color: transparent;
+}
