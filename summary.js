@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		summary.setString(text);
 		summary.remove_brackets();
 		numsentences = summary.s_split();
-		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.2), 5));
+		summarylen = Math.max(2, Math.min(Math.floor(numsentences * 0.3), 5));
 		summary.summarise(summarylen);
 		
 		var el = window.getSelection().getRangeAt(0).startContainer;
