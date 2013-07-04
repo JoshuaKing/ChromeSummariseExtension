@@ -25,7 +25,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		summary.summarise(summarylen);
 
 		if (url.search(/.pdf$/) >= 0) {
-			$("body").prepend("<div class='summarize-pdf'><div class='summarize-summary'><div class='summarize-heading'>Summary</div><div class='summarize-content'>" + summary.response + "</div></div></div>");
+			$(".summarize-pdf").remove();
+			$("body").prepend("<div class='summarize-pdf'><div class='summarize-summary'><div class='summarize-heading'>Summary<div class='summarize-hide'>hide</div></div><div class='summarize-content'>" + summary.response + "</div></div></div>");
+			$(".summarize-hide").click(function() {
+				$(".summarize-pdf").remove();
+			});
 			return;
 		}
 		
@@ -67,7 +71,7 @@ function redditScan() {
 		
 		$(this).parent().prepend(pre + summary.response + "</div></div>");
 		
-		$(".summarize-summary .hide").click(function() {
+		$(".summarize-summary .summarize-hide").click(function() {
 			$(this).parent(".summarize-summary").hide();
 		});
 	});

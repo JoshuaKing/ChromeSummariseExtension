@@ -24,6 +24,7 @@
 }
 
 .summarize-pdf {
+	color: #444;
 	background-color: #CCCCCC;
 }
 
@@ -33,5 +34,16 @@
 	margin: 0;
 	padding-bottom: 20px;
 	margin-left: 25%;
-	background-color: transparent;
+	background-color: white;
+}
+
+.summarize-pdf>.summarize-summary .summarize-heading {
+	display: inline-block;
+}
+
+.summarize-pdf>.summarize-summary .summarize-hide {
+	colour: #444;
+	float: none;
+	margin-left: 20px;
+	display: inline-block;
 }
