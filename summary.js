@@ -13,32 +13,52 @@ chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	}
 });
 
+function getSummary(text) {
+	var summary = new Summariser();
+	summary.setString(text);
+	summary.remove_brackets();
+	numsentences = summary.s_split();
+	summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.3), 6));
+	return summary.summarise(summarylen);
+}
+
+function getSummaryDiv(includeHeading, summary, originalText) {
+	var percentage = Math.floor((summary.length / originalText.length) * 100);
+	var div = "<div class='summarize-summary'>";
+	div += "<div class='summarize-heading'>Summary (" + percentage + "%)</div>";
+	div += "<div class='summarize-content'></div>";
+	div += "</div></div>";
+	
+	div = $(div);
+	if (includeHeading) {
+		div.find(".summarize-heading").append("<div class='summarize-hide'>Hide</div>");
+	}
+	
+	summary = summary.replace(/[<]\/?br\/?[>]/g, "[br]");
+	div.find(".summarize-content").html(document.createTextNode(summary));
+	var onlybr = div.find(".summarize-content").text().replace(/\[br\]/g, "<br>");
+	div.find(".summarize-content").html(onlybr);
+	
+	return div;
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	if (request.type == "summariseSelected") {
 		var text = request.selectedText;
-		
-		var summary = new Summariser();
-		summary.setString(text);
-		summary.remove_brackets();
-		numsentences = summary.s_split();
-		summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.3), 6));
-		summary.summarise(summarylen);
+		var summary = getSummary(text);
 
 		if (url.search(/.pdf$/) >= 0) {
 			$(".summarize-pdf").remove();
-			$("body").prepend("<div class='summarize-pdf'><div class='summarize-summary'><div class='summarize-heading'>Summary<div class='summarize-hide'>hide</div></div><div class='summarize-content'>" + summary.response + "</div></div></div>");
+			summaryDiv = getSummaryDiv(true, summary, text);
+			$("body").prepend($("<div class='summarize-pdf'></div>").html(summaryDiv));
 			$(".summarize-hide").click(function() {
 				$(".summarize-pdf").remove();
 			});
 			return;
 		}
 		
-		var el = window.getSelection().getRangeAt(0).startContainer;
-		
-		var insert = "<div class='summarize-summary'><div class='summarize-heading'>Summary</div><div class='summarize-content'>";
-		insert += summary.response + "</div></div>";
-		
-		$(el).parent().prepend(insert);
+		var el = window.getSelection().getRangeAt(0).startContainer;		
+		$(el).parent().prepend(getSummaryDiv(false, summary, text));
 	}
 });
 

@@ -1,0 +1,4 @@
+gradient: #333333 to 1a1a1a
+orange: ff3300
+orange gradient: ff6200 to ff3300
+text: Lucida Sans Unicode (51 Bold) & Aldhabi

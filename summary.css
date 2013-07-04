@@ -9,6 +9,8 @@
 .summarize-summary .summarize-heading {
 	font-weight: bold;
 	font-size: 0.7em;
+	display: inline-block;
+	width: 100%;
 }
 
 .summarize-summary .summarize-hide {
@@ -26,6 +28,9 @@
 .summarize-pdf {
 	color: #444;
 	background-color: #CCCCCC;
+	position: fixed;
+	top: 0;
+	width: 100%;
 }
 
 .summarize-pdf>.summarize-summary {
@@ -38,12 +43,12 @@
 }
 
 .summarize-pdf>.summarize-summary .summarize-heading {
-	display: inline-block;
+	/*display: inline-block;*/
 }
 
 .summarize-pdf>.summarize-summary .summarize-hide {
 	colour: #444;
-	float: none;
+	/*float: none;
 	margin-left: 20px;
-	display: inline-block;
+	display: inline-block;*/
 }

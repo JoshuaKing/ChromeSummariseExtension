@@ -1,12 +1,12 @@
 {
 	"manifest_version": 2,
-	"name": "tl;dr Summarizer",
-	"description": "tl;dr Summarizer finds long comments on Reddit and summarises them! In fact, you can summarise any lengthy article online.",
-	"version": "0.27",
+	"name": "Summarizer",
+	"description": "Summarizer finds long comments on Reddit and summarises them! In fact, you can summarise any lengthy article online.",
+	"version": "0.3",
 	
 	"icons": {
-		"16": "tldrcontext.png",
-		"128": "tldr.png"
+		"16": "images/temple/micro.png",
+		"128": "images/temple/icon.png"
 	},
 	
 	"background": {
