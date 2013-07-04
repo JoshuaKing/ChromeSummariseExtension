@@ -24,10 +24,11 @@ function getSummary(text) {
 
 function getSummaryDiv(includeHeading, summary, originalText) {
 	var percentage = Math.floor((summary.length / originalText.length) * 100);
-	var div = "<div class='summarize-summary'>";
+	var div = "<div class='summarize'>";
+	div += "<div class='summarize-summary'>";
 	div += "<div class='summarize-heading'>Summary (" + percentage + "%)</div>";
 	div += "<div class='summarize-content'></div>";
-	div += "</div></div>";
+	div += "</div></div></div>";
 	
 	div = $(div);
 	if (includeHeading) {
@@ -38,6 +39,22 @@ function getSummaryDiv(includeHeading, summary, originalText) {
 	div.find(".summarize-content").html(document.createTextNode(summary));
 	var onlybr = div.find(".summarize-content").text().replace(/\[br\]/g, "<br>");
 	div.find(".summarize-content").html(onlybr);
+	
+	return div;
+}
+
+function getTlDrDiv(tldr) {
+	var div = "<div class='summarize-tldr'>";
+	div += "<div class='summarize-heading'>User tl;dr";
+	div += "<div class='summarize-hide'>hide</div></div>";
+	div += "<div class='summarize-user-tldr'></div>";
+	div += "</div>";
+	
+	div = $(div);
+	tldr = tldr.replace(/[<]\/?br\/?[>]/g, "[br]");
+	div.find(".summarize-user-tldr").html(document.createTextNode(summary));
+	var onlybr = div.find(".summarize-user-tldr").text().replace(/\[br\]/g, "<br>");
+	div.find(".summarize-user-tldr").html(onlybr);
 	
 	return div;
 }
@@ -73,27 +90,20 @@ function redditScan() {
 		text = this.innerHTML;
 		if (text.length < 1000) return;	// Not long enough
 		
-		var summary = new Summariser();
-		summary.setString(text);
-		summary.remove_brackets();
-		numsentences = summary.s_split();
-		summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.2), 5));
-		summary.summarise(summarylen);
-		
-		pre = "<div class='summarize-summary .reddit'>";
-		
+		var summary = getSummary(text);
 		var tldr = getTlDr(text);
+		
+		var summaryDiv = getSummaryDiv((tldr == ""), summary, text);
+		
 		if (tldr != "") {
-			pre += "<div class='summarize-tldr'><div class='summarize-heading'>User tl;dr<div class='summarize-hide'>hide</div></div>" + tldr + "</div><div class='summarize-heading'>Summary</div><div class='summarize-content'>";
-		} else {
-			pre += "<div class='summarize-heading'>Summary (";
-			pre += Math.floor(summary.response.length / text.length * 100) + "%)";
-			pre += "<div class='summarize-hide'>hide</div></div><div class='summarize-content'>"
+			var tldrDiv = getTlDrDiv(tldr);
+			summaryDiv.find(".summarize").prepend(tldrDiv);
 		}
 		
-		$(this).parent().prepend(pre + summary.response + "</div></div>");
 		
-		$(".summarize-summary .summarize-hide").click(function() {
+		$(this).parent().prepend(summaryDiv);
+		
+		$(".summarize-hide").click(function() {
 			$(this).parent(".summarize-summary").hide();
 		});
 	});

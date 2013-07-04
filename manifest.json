@@ -2,7 +2,7 @@
 	"manifest_version": 2,
 	"name": "Summarizer",
 	"description": "Summarizer finds long comments on Reddit and summarises them! In fact, you can summarise any lengthy article online.",
-	"version": "0.3",
+	"version": "0.31",
 	
 	"icons": {
 		"16": "images/temple/micro.png",
