@@ -25,13 +25,17 @@ function Summariser() {
 		this.string = this.string.replace(/\[.*?\]/g, "");	// replace contents of square braces
 		this.string = this.string.replace(/\n/, "<br>");
 		this.string = this.string.replace(/\\/g,"");
+
+		// remove all html //
 		this.string = this.string.replace(/<[^>]+(>|$)/g, "");
+		// remove any remaining left-over angle brackets, just in case //
+		this.string = this.string.replace(/[<>]/g, "");
 		
 		return this.string;
 	}
 	
 	this.s_split = function() {
-		this.string = this.string.replace(/([0-9])[.]([0-9])/g, "[$1:$2]");	// remove decimal points from being counted
+		this.string = this.string.replace(/([0-9]+)[.]([0-9]+)/g, "[$1:$2]");	// remove decimal points from being counted
 		this.s_array = this.string.split(/[.?!]/);
 		seperators = this.string.replace(/[^.!?]/g, '');
 		numsentences = this.s_array.length;
@@ -40,8 +44,55 @@ function Summariser() {
 		for (i = 0; i < this.s_array.length && i < seperators.length; i++) {
 			this.s_array[i] += seperators[i];
 		}
+		for (j = i; i < numsentences; i++) {
+			if (this.s_array[j].match(/[a-zA-Z]+/) == null) this.s_array.splice(j,1);
+		}
 		
 		return numsentences;
+	}
+
+	this.reduce = function(words, sent) {
+		counts = new Array();
+		allWords = new Array();
+		
+		// Convert to 1D //
+		for(var i = 0; i < words.length; i++) {
+			allWords = allWords.concat(words[i]);
+		}
+		
+		while (allWords.length > 0) {
+			var word = allWords[0];
+			var index = 0;
+			
+			counts[word] = 1;
+			allWords.shift();
+			while ((index = allWords.indexOf(word)) >= 0) {
+				counts[word]++;
+				allWords.splice(index, 1);
+			}
+		}
+		
+		var scores = new Array();
+		for (sentence = 0; sentence < words.length; sentence++) {
+			scores[sentence] = 0;
+			for (i = 0; i < words[sentence].length; i++) {
+				w = words[sentence][i];
+				scores[sentence] += counts[w];
+			}
+		}
+
+		// Sort //
+		var sortable = [];
+		for (var i = 0; i < words.length; i++) 
+			sortable.push([this.s_array[i], i, scores[i]]);
+		sortable.sort(function(a, b) {return a[2] - b[2]});
+				
+		var rated = new Array();
+		for (i = 0; i < Math.ceil(sent); i++) {
+			rated.push(sortable[i][1]);
+		}
+		
+		return rated.sort();
 	}
 	
 	this.summarise = function(sent) {
@@ -57,7 +108,7 @@ function Summariser() {
 			}
 		}
 		
-		for (i = 0; i < sentleng; i++) {
+		/*for (i = 0; i < sentleng; i++) {
 			for (p = 0; p < sentleng; p++) {
 				for (li = 0; li < words[p].length; li++) {
 				    
@@ -66,23 +117,17 @@ function Summariser() {
 					}
 				}
 			}
-		}
+		}*/
 		if (sent > this.s_array.length) 
 			sent = this.s_array.length;
+	
+		rated = this.reduce(words, sent);
 		
-		tor = this.s_array[0].replace(/\[([0-9]):([0-9])\]/, "$1.$2");	// add decimal points back in
-		this.s_importance[0] = -2;
-		for (i = 1; i < sent; i++) {
-			max = array_keys(this.s_importance, this.s_importance.max());
-			if(this.s_importance[max[0]] != -2) 
-				tor += "<br/>" + this.s_array[max[0]].replace(/\[([0-9]):([0-9])\]/, "$1.$2") + " "; 	// add decimal points back in
-			this.s_importance[max[0]] = -2;
+		this.response = "";
+		for (i = 0; i < rated.length; i++) {
+			this.response += this.s_array[rated[i]].replace(/\[([0-9]):([0-9])\]/, "$1.$2") + "<br/>"; 	// add decimal points back in
 		}
-		//this.s_array = temp;//$maxs = array_keys($array, max($array))*/
-		tor = tor.replace(/=.+=/g, "");
-		tor = tor.replace(/u([\da-fA-F]{4})/g, '&#x\1;');
-		this.response = tor;
-		return tor;
+		return this.response;
 	}
 }
 
@@ -161,7 +206,8 @@ function str_word_count(str, format, charlist) {
     if ((c = _getWholeChar(str, i)) === false) {
       continue;
     }
-    match = (reg && c.search(reg) !== -1) || ((i !== 0 && i !== len - 1) && c === '-') || // No hyphen at beginning or end unless allowed in charlist (or locale)
+
+    match = (c.search(/[^A-Za-z]/) < 0) || (reg && c.search(reg) !== -1) || ((i !== 0 && i !== len - 1) && c === '-') || // No hyphen at beginning or end unless allowed in charlist (or locale)
     (i !== 0 && c === "'"); // No apostrophe at beginning unless allowed in charlist (or locale)
     if (match) {
       if (tmpStr === '' && format === 2) {
@@ -189,52 +235,3 @@ function str_word_count(str, format, charlist) {
   }
   throw 'You have supplied an incorrect format';
 }
-
-/* From PHP JS: http://phpjs.org/functions/array_keys/ */
-function array_keys (input, search_value, argStrict) {
-  // http://kevin.vanzonneveld.net
-  // +   original by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  // +      input by: Brett Zamir (http://brett-zamir.me)
-  // +   bugfixed by: Kevin van Zonneveld (http://kevin.vanzonneveld.net)
-  // +   improved by: jd
-  // +   improved by: Brett Zamir (http://brett-zamir.me)
-  // +   input by: P
-  // +   bugfixed by: Brett Zamir (http://brett-zamir.me)
-  // *     example 1: array_keys( {firstname: 'Kevin', surname: 'van Zonneveld'} );
-  // *     returns 1: {0: 'firstname', 1: 'surname'}
-
-  var search = typeof search_value !== 'undefined',
-    tmp_arr = [],
-    strict = !!argStrict,
-    include = true,
-    key = '';
-
-  if (input && typeof input === 'object' && input.change_key_case) { // Duck-type check for our own array()-created PHPJS_Array
-    return input.keys(search_value, argStrict);
-  }
-
-  for (key in input) {
-    if (input.hasOwnProperty(key)) {
-      include = true;
-      if (search) {
-        if (strict && input[key] !== search_value) {
-          include = false;
-        }
-        else if (input[key] != search_value) {
-          include = false;
-        }
-      }
-
-      if (include) {
-        tmp_arr[tmp_arr.length] = key;
-      }
-    }
-  }
-
-  return tmp_arr;
-}
-
-/* From Stack Overflow: http://stackoverflow.com/questions/1669190/javascript-min-max-array-values */
-Array.prototype.max = function() {
-  return Math.max.apply(null, this);
-};
