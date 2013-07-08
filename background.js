@@ -4,12 +4,11 @@ chrome.runtime.onMessage.addListener(
 			sendResponse({url: sender.tab.url});
 		} else if (request.type == "setVariables") {
 			localStorage["variables"] = JSON.stringify(request.values);
-			alert(localStorage["variables"]);
 		} else if (request.type == "getVariables") {
 			if (localStorage["variables"] && localStorage["variables"] != "undefined")
 				sendResponse(JSON.parse(localStorage["variables"]));
 			else
-				sendResponse(null);
+				sendResponse({percent: 0.3, max: 6, min: 3});
 		}
 	}
 );

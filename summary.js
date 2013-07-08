@@ -3,23 +3,31 @@ var url = "";
 var percent = 0.3;
 var min = 3;
 var max = 6;
+var done = 0;
 
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	domain = document.domain;
 	url = response.url;
 	
+	done++;
+	if (done >= 2) start();
+});
+
+chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
+	percent = response.percent;
+	max = response.max;
+	min = response.min;
+	
+	done++;
+	if (done >= 2) start();
+});
+
+function start() {
 	if (domain.match(/reddit.com$/) != null) {
 		// Site is reddit do scan //
 		redditScan();
 	}
-});
-
-chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
-	if (!response) return;
-	percent = response.percent;
-	max = response.max;
-	min = response.min;
-});
+}
 
 function updateHide() {
 	$(".summarize-hide").click(function() {
