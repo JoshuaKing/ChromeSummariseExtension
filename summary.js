@@ -1,5 +1,8 @@
 var domain = "";
 var url = "";
+var percent = 0.3;
+var min = 3;
+var max = 6;
 
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	domain = document.domain;
@@ -9,6 +12,13 @@ chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 		// Site is reddit do scan //
 		redditScan();
 	}
+});
+
+chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
+	if (!response) return;
+	percent = response.percent;
+	max = response.max;
+	min = response.min;
 });
 
 function updateHide() {
@@ -54,15 +64,19 @@ function getTlDrDiv(tldr) {
 	return div;
 }
 
+function genSummary(text) {
+	var summary = new Summariser();	
+	return summary.getSummary(text, percent, min, max, true);
+}
+
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	if (request.type == "summariseSelected") {
 		var text = request.selectedText;
-		var summary = new Summariser();
-		var sum = summary.getSummary(text, 0.3, 3, 6, true);
+		var summary = genSummary(text);
 
 		if (url.search(/.pdf$/) >= 0) {
 			$(".summarize-pdf").remove();
-			summaryDiv = getSummaryDiv(true, sum, text);
+			summaryDiv = getSummaryDiv(true, summary, text);
 			$("body").prepend($("<div class='summarize-pdf'></div>").html(summaryDiv));
 			$(".summarize-hide").click(function() {
 				$(".summarize-pdf").remove();
@@ -71,7 +85,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		}
 		
 		var el = window.getSelection().getRangeAt(0).startContainer;		
-		$(el).parent().prepend(getSummaryDiv(false, sum, text));
+		$(el).parent().prepend(getSummaryDiv(false, summary, text));
 		updateHide();
 	}
 });
@@ -85,11 +99,10 @@ function redditScan() {
 		text = this.innerHTML;
 		if (text.length < 1000) return;	// Not long enough
 		
-		var summary = new Summariser();
-		var sum = summary.getSummary(text, 0.3, 3, 6, true);
+		var summary = genSummary(text);
 		var tldr = getTlDr(text);
 		
-		var summaryDiv = getSummaryDiv((tldr == ""), sum, text);
+		var summaryDiv = getSummaryDiv((tldr == ""), summary, text);
 		
 		if (tldr != "") {
 			var tldrDiv = getTlDrDiv(tldr);
