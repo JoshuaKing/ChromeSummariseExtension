@@ -17,15 +17,6 @@ function updateHide() {
 	});
 }
 
-function getSummary(text) {
-	var summary = new Summariser();
-	summary.setString(text);
-	summary.remove_brackets();
-	numsentences = summary.s_split();
-	summarylen = Math.max(3, Math.min(Math.floor(numsentences * 0.3), 6));
-	return summary.summarise(summarylen);
-}
-
 function getSummaryDiv(includeHeading, summary, originalText) {
 	var percentage = Math.floor((summary.length / originalText.length) * 100);
 	var div = "<div class='summarize'>";
@@ -66,11 +57,12 @@ function getTlDrDiv(tldr) {
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 	if (request.type == "summariseSelected") {
 		var text = request.selectedText;
-		var summary = getSummary(text);
+		var summary = new Summariser();
+		var sum = summary.getSummary(text, 0.3, 3, 6, true);
 
 		if (url.search(/.pdf$/) >= 0) {
 			$(".summarize-pdf").remove();
-			summaryDiv = getSummaryDiv(true, summary, text);
+			summaryDiv = getSummaryDiv(true, sum, text);
 			$("body").prepend($("<div class='summarize-pdf'></div>").html(summaryDiv));
 			$(".summarize-hide").click(function() {
 				$(".summarize-pdf").remove();
@@ -79,7 +71,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, callback) {
 		}
 		
 		var el = window.getSelection().getRangeAt(0).startContainer;		
-		$(el).parent().prepend(getSummaryDiv(false, summary, text));
+		$(el).parent().prepend(getSummaryDiv(false, sum, text));
 		updateHide();
 	}
 });
@@ -93,10 +85,11 @@ function redditScan() {
 		text = this.innerHTML;
 		if (text.length < 1000) return;	// Not long enough
 		
-		var summary = getSummary(text);
+		var summary = new Summariser();
+		var sum = summary.getSummary(text, 0.3, 3, 6, true);
 		var tldr = getTlDr(text);
 		
-		var summaryDiv = getSummaryDiv((tldr == ""), summary, text);
+		var summaryDiv = getSummaryDiv((tldr == ""), sum, text);
 		
 		if (tldr != "") {
 			var tldrDiv = getTlDrDiv(tldr);
