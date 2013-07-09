@@ -23,10 +23,53 @@ chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
 });
 
 function start() {
-	if (domain.match(/reddit.com$/) != null) {
+	if (domain.match(/reddit\.com$/) != null) {
 		// Site is reddit do scan //
 		redditScan();
 	}
+	
+	scanConvert();
+}
+
+function Conversion() {}
+Conversion.feetToMeters = function(f) {
+	return f * 0.3048;
+}
+
+function scanConvert() {
+	var justFeet = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft)/ig);
+	var origStartHtml = "<u class='original'>"
+	var origEndHtml = "<u class='original'>"
+	
+	var beforeHtml = "<u class='conversion'>";
+	var midHtml = "<u class='math'>";
+	var endHtml = "</u></u>";
+	
+	var offset = origStartHtml.length + origEndHtml.length + beforeHtml.length + midHtml.length + endHtml.length;
+	
+	$("body *").contents().filter(function() {
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header").length == 0;
+	}).each(function() {
+		var original = $(this).text();
+		var text = original;
+		while (match = justFeet.exec(text)) {
+			var f = parseFloat(match[1].replace(",", ""));
+			var m = Conversion.feetToMeters(f);
+			var left = text.substring(0, match.index);
+			var mid = text.substring(match.index, justFeet.lastIndex);
+			var right = text.substring(justFeet.lastIndex);
+			text = left + origStartHtml + match[0] + origEndHtml;
+			text += beforeHtml + mid + midHtml + (m > 10 ? "" : "~")
+			text += Math.ceil(m) + "m" + endHtml + right;
+			
+			justFeet.lastIndex += beforeHtml.length + midHtml.length + endHtml.length + "~m".length;
+		}
+		
+		if (text != original) {
+			$(this).parent().html(text);
+		}
+		
+	});
 }
 
 function updateHide() {
