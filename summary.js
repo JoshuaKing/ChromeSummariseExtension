@@ -59,7 +59,7 @@ function convertHtml(text, input, result, from, to) {
 }
 
 function convertImperialLength() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch|in))(?![ ]?\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch))(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
