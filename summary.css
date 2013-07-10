@@ -47,9 +47,6 @@
 
 .summarize-pdf .summarize-summary .summarize-hide {
 	color: white;
-	/*float: none;
-	margin-left: 20px;
-	display: inline-block;*/
 }
 
 .conversion {
@@ -69,6 +66,72 @@
 	text-decoration: inherit;
 }
 
-.original {
+.conversion-original {
 	display: none;
+	text-decoration: inherit;
+}
+
+.conversionoffcontainer {
+	position: absolute;
+	margin-top: -50px;
+	height: 55px;
+	width: 80px;
+	z-index: 1;
+	text-decoration: none;
+}
+
+.sum-button {
+	text-decoration: none;
+	border: 1px solid #f58b00;
+	cursor: pointer;
+	color: #444;
+	padding: 3px;
+}
+
+.sum-button:hover {
+	border: 1px solid #c36800;
+	color: #222;
+}
+
+.sum-button:active {
+	background: #ddd3c0;
+}
+
+.conversionoff {
+	position: absolute;
+	margin-top: -50px;
+	width: 70px;
+	text-align: center;
+	padding-bottom: 3px;
+	padding-top: 3px;
+	background: #fff3e0;
+	border: 4px solid #f58b00;
+	z-index: 5;
+	text-decoration: none;
+}
+
+
+.conversionoff:after, .conversionoff:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+.conversionoff:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-top-color: #fff3e0;
+	border-width: 10px;
+	left: 50%;
+	margin-left: -10px;
+}
+.conversionoff:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-top-color: #f58b00;
+	border-width: 16px;
+	left: 50%;
+	margin-left: -16px;
 }

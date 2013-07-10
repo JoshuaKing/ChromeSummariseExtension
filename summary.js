@@ -1,8 +1,6 @@
 var domain = "";
 var url = "";
-var percent = 0.3;
-var min = 3;
-var max = 6;
+var variables = {};
 var done = 0;
 
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
@@ -14,10 +12,8 @@ chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 });
 
 chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
-	percent = response.percent;
-	max = response.max;
-	min = response.min;
-	
+	variables = response;
+	console.log(variables);
 	done++;
 	if (done >= 2) start();
 });
@@ -37,11 +33,11 @@ Conversion.feetToMeters = function(f) {
 }
 
 function scanConvert() {
-	convertImperialLength();
+	if (variables.imperial) convertImperialLength();
 }
 
 function convertHtml(text, input, result, from, to) {
-	var origStartHtml = "<u class='original'>"
+	var origStartHtml = "<u class='conversion-original'>"
 	var origEndHtml = "</u>"
 	
 	var beforeHtml = "<u class='conversion'>";
@@ -63,7 +59,7 @@ function convertHtml(text, input, result, from, to) {
 }
 
 function convertImperialLength() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch|in))(?![ ]?\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch|in))(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
@@ -97,10 +93,22 @@ function convertImperialLength() {
 		}
 		
 		if (text != original) {
-			$(this).parent().html(text);
+			$(this).parent().html(text).find(".conversion").mouseenter(function(obj) {
+				$(obj.target).prepend("<u class='conversionoffcontainer'>&nbsp;</u><u class='conversionoff'><u class='sum-button'>Turn Off</u></u>");
+				$(".sum-button").click(turnOffConversion);
+			}).mouseleave(function(obj){
+				$(".conversionoffcontainer,.conversionoff").remove();
+			});
 		}
-		
 	});
+}
+
+function turnOffConversion() {
+	console.log("Turn Off");
+	chrome.runtime.sendMessage({type: "setVar", key: "imperial", value:false});
+	$(".conversion-original").show();
+	$(".conversion").remove();
+	chrome.runtime.sendMessage({type: "getVariables"}, function(response) {console.log(response);});
 }
 
 function updateHide() {
@@ -148,7 +156,7 @@ function getTlDrDiv(tldr) {
 
 function genSummary(text) {
 	var summary = new Summariser();	
-	return summary.getSummary(text, percent, min, max, true);
+	return summary.getSummary(text, variables.percent, variables.min, variables.max, true);
 }
 
 chrome.runtime.onMessage.addListener(function(request, sender, callback) {

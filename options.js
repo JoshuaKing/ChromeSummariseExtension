@@ -1,40 +1,59 @@
-function defaults() {
-	$('#percent').val(30).change();
-	$('#max').val(3).change();
-	$('#min').val(6).change();
-}
+$("#defaults").click(function() {
+	chrome.runtime.sendMessage({type: "setVariables", values: {
+		percent: 0.3,
+		max: 6,
+		min: 3,
+		imperial: true
+	}});
+	
+	restore();
+});
 
-function restore_options() {
+function setup() {
 	$("#percent").change(function() {
+		save();
 		$('#percent-label').html($("#percent").val() + "% Of Size.");
 	});
 
 	$("#min").change(function() {
+		save();
 		$('#min-label').html($("#min").val() + " Sentences");
 	});
 
 	$("#max").change(function() {
+		save();
 		$('#max-label').html($("#max").val() + " Sentences");
 	});
 	
-	$('#save').click(function() {
-		localStorage["percent"] = $('#percent').val() / 100;
-		localStorage["max"] = $('#max').val();
-		localStorage["min"] = $('#min').val();
-		
-		chrome.runtime.sendMessage({type: "setVariables", values: {
-			percent: $('#percent').val() / 100,
-			max: $('#max').val(),
-			min: $('#min').val()
-		}});
+	$("#imperial").change(function() {
+		save();
+		if ($("#imperial").prop('checked'))
+			$('#imperial-label').html("Convert");
+		else
+			$('#imperial-label').html("Do Not Convert");
 	});
 	
-	defaults();
-	if (!localStorage["percent"]) return;
-	$('#percent').val(localStorage["percent"] * 100).change();
-	$('#max').val(localStorage["max"]).change();
-	$('#min').val(localStorage["min"]).change();
+	$('#save').click(save);	
 	
+	restore();
 }
 
-document.addEventListener('DOMContentLoaded', restore_options);
+function save() {
+	chrome.runtime.sendMessage({type: "setVariables", values: {
+		percent: $('#percent').val() / 100,
+		max: $('#max').val(),
+		min: $('#min').val(),
+		imperial: $('#imperial').prop('checked')
+	}});
+}
+
+function restore() {
+	chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
+		$('#percent').val(response.percent * 100).change();
+		$('#max').val(response.max).change();
+		$('#min').val(response.min).change();
+		$('#imperial').prop('checked', response.imperial).change();
+	});
+}
+
+document.addEventListener('DOMContentLoaded', setup);
