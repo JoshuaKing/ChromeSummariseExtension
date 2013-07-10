@@ -37,32 +37,63 @@ Conversion.feetToMeters = function(f) {
 }
 
 function scanConvert() {
-	var justFeet = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft)/ig);
+	convertImperialLength();
+}
+
+function convertHtml(text, input, result, from, to) {
 	var origStartHtml = "<u class='original'>"
-	var origEndHtml = "<u class='original'>"
+	var origEndHtml = "</u>"
 	
 	var beforeHtml = "<u class='conversion'>";
 	var midHtml = "<u class='math'>";
 	var endHtml = "</u></u>";
 	
-	var offset = origStartHtml.length + origEndHtml.length + beforeHtml.length + midHtml.length + endHtml.length;
+	var left = text.substring(0, from);
+	var mid = text.substring(from, to);
+	var right = text.substring(to);
+	
+	var conversion = left + origStartHtml + input + origEndHtml;
+	conversion += beforeHtml + mid + midHtml + result + endHtml;
+	conversion += right;
+	
+	var len = origStartHtml.length + origEndHtml.length + input.length;
+	len += beforeHtml.length + midHtml.length + endHtml.length + result.length;
+	
+	return {text: conversion, length: len};
+}
+
+function convertImperialLength() {
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch|in))(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
-		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header").length == 0;
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
 	}).each(function() {
 		var original = $(this).text();
 		var text = original;
-		while (match = justFeet.exec(text)) {
-			var f = parseFloat(match[1].replace(",", ""));
+		while (match = impLength.exec(text)) {
+			//if (match.length != 2) continue;
+			var f = 0;
+			if (match[3]) {	// Y Inches
+				f = match[3]/12;
+			} else if (match[2]) {	// X Feet Y Inches
+				f = parseFloat(match[1].replace(",", ""));
+				f += match[2]/12;
+			} else {	// Just X Feet
+				f = parseFloat(match[1].replace(",", ""));
+			}
 			var m = Conversion.feetToMeters(f);
-			var left = text.substring(0, match.index);
-			var mid = text.substring(match.index, justFeet.lastIndex);
-			var right = text.substring(justFeet.lastIndex);
-			text = left + origStartHtml + match[0] + origEndHtml;
-			text += beforeHtml + mid + midHtml + (m > 10 ? "" : "~")
-			text += Math.ceil(m) + "m" + endHtml + right;
+			var math = (m > 10 ? "" : "~")
+			if (m < 1.5)
+				math += Math.ceil(m * 100) + "cm";
+			else if (m > 1500)
+				math += (Math.ceil(m/100)/10) + "km";
+			else
+				math += Math.ceil(m) + "m";
+				
+			var result = convertHtml(text, match[0], math, match.index, impLength.lastIndex);
+			text = result.text;
 			
-			justFeet.lastIndex += beforeHtml.length + midHtml.length + endHtml.length + "~m".length;
+			impLength.lastIndex += result.length;
 		}
 		
 		if (text != original) {
