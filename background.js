@@ -13,7 +13,12 @@ chrome.runtime.onMessage.addListener(
 					imperial: true
 				});
 			}
-			sendResponse(JSON.parse(localStorage["variables"]));
+			var variables = JSON.parse(localStorage["variables"]);
+			
+			/* For new variables */
+			if (variables.imperial == "undefined") variables.imperial = true;
+			
+			sendResponse(variables);
 		} else if (request.type == "setVar") {
 			var variables = JSON.parse(localStorage["variables"]);
 			variables[request.key] = request.value;
