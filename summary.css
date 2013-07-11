@@ -75,7 +75,7 @@
 	position: absolute;
 	margin-top: -50px;
 	height: 55px;
-	width: 80px;
+	width: 100px;
 	z-index: 1;
 	text-decoration: none;
 }
@@ -86,6 +86,9 @@
 	cursor: pointer;
 	color: #444;
 	padding: 3px;
+	display: inline-block;
+	margin-left: 3px;
+	margin-right: 3px;
 }
 
 .sum-button:hover {
@@ -100,7 +103,6 @@
 .conversionoff {
 	position: absolute;
 	margin-top: -50px;
-	width: 70px;
 	text-align: center;
 	padding-bottom: 3px;
 	padding-top: 3px;
