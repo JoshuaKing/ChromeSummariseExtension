@@ -13,7 +13,6 @@ chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 
 chrome.runtime.sendMessage({type: "getVariables"}, function(response) {
 	variables = response;
-	console.log(variables);
 	done++;
 	if (done >= 2) start();
 });
@@ -32,8 +31,19 @@ Conversion.feetToMeters = function(f) {
 	return f * 0.3048;
 }
 
+Conversion.milesToKm = function(f) {
+	return f * 1.609344;
+}
+Conversion.poundsToGrams = function(f) {
+    return f * 453.592;
+}
+
 function scanConvert() {
-	if (variables.imperial) convertImperialLength();
+	if (variables.imperial) {
+        convertImperialLength();
+        convertImperialMiles();
+        convertImperialWeight();
+    }
 }
 
 function convertHtml(text, input, result, from, to) {
@@ -58,8 +68,80 @@ function convertHtml(text, input, result, from, to) {
 	return {text: conversion, length: len};
 }
 
+
+function convertImperialWeight() {
+	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?) (\d+)[ ]?(?:ounces?|oz)(?![ s]*\()|(?:(\d+[\d,]+)[ ]?(?:lbs?))(?![ s]*\()|(?:(\d+)[ ]?(?:oz))(?![ ]?\()/ig);
+	
+	$("body *").contents().filter(function() {
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
+	}).each(function() {
+		var original = $(this).text();
+		var text = original;
+		while (match = impLength.exec(text)) {
+			var m = 0.0;
+            if (match[4]) {
+				m = parseFloat(match[4]) / 16;
+            } else if (match[3]) {
+                m = parseFloat(match[3].replace(",", "")); 
+            } else {
+                m = parseFloat(match[1].replace(",", "")); 
+				m += parseFloat(match[2]) / 16;
+            }
+            console.log(match);
+            Conversion.poundsToGrams(m);
+			var math = (m < 500) ? "~" : "";
+            if (m < 1000) math += Math.ceil(m) + "g";
+            else  math += Math.ceil(m / 100) / 10 + "kg";
+
+			var result = convertHtml(text, match[0], math, match.index, impLength.lastIndex);
+			text = result.text;
+			
+			impLength.lastIndex += result.length;
+		}
+		
+		if (text != original) {
+			$(this).parent().html(text).find(".conversion").mouseenter(function(obj) {
+				$(obj.target).prepend("<u class='conversionoffcontainer'>&nbsp;</u><u class='conversionoff'><u class='sum-button'>Turn Off</u></u>");
+				$(".sum-button").click(turnOffConversion);
+			}).mouseleave(function(obj){
+				$(".conversionoffcontainer,.conversionoff").remove();
+			});
+		}
+	});
+}
+
+function convertImperialMiles() {
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,?\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:miles?)(?![ s]*\()/ig);
+	
+	$("body *").contents().filter(function() {
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
+	}).each(function() {
+		var original = $(this).text();
+		var text = original;
+		while (match = impLength.exec(text)) {
+			var m = Conversion.milesToKm(match[1].replace(",", ""));
+			var math = Math.ceil(m * 10) / 10 + "km";
+            if (m > 20) math = Math.ceil(m) + "km";
+
+			var result = convertHtml(text, match[0], math, match.index, impLength.lastIndex);
+			text = result.text;
+			
+			impLength.lastIndex += result.length;
+		}
+		
+		if (text != original) {
+			$(this).parent().html(text).find(".conversion").mouseenter(function(obj) {
+				$(obj.target).prepend("<u class='conversionoffcontainer'>&nbsp;</u><u class='conversionoff'><u class='sum-button'>Turn Off</u></u>");
+				$(".sum-button").click(turnOffConversion);
+			}).mouseleave(function(obj){
+				$(".conversionoffcontainer,.conversionoff").remove();
+			});
+		}
+	});
+}
+
 function convertImperialLength() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)[ ]?(?:(\d+) (?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch))(?![ ]?\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot) (?:(\d+)[ ]?(?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch))(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
@@ -104,11 +186,10 @@ function convertImperialLength() {
 }
 
 function turnOffConversion() {
-	console.log("Turn Off");
 	chrome.runtime.sendMessage({type: "setVar", key: "imperial", value:false});
 	$(".conversion-original").show();
 	$(".conversion").remove();
-	chrome.runtime.sendMessage({type: "getVariables"}, function(response) {console.log(response);});
+	chrome.runtime.sendMessage({type: "getVariables"});
 }
 
 function updateHide() {
