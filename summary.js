@@ -70,10 +70,10 @@ function convertHtml(text, input, result, from, to) {
 
 
 function convertImperialWeight() {
-	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?) (\d+)[ ]?(?:ounces?|oz)(?![ s]*\()|(?:(\d+[\d,]+)[ ]?(?:lbs?))(?![ s]*\()|(?:(\d+)[ ]?(?:oz))(?![ ]?\()/ig);
+	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?|oz)(?![ s]*\()|(?:(\d+[\d,]+)[ ]?(?:lbs?))(?![ s]*\()|(?:(\d+)[ ]?(?:oz|ounces?))(?![ s]*\()/ig);
 	
 	$("body *").contents().filter(function() {
-		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
 		var text = original;
@@ -87,8 +87,8 @@ function convertImperialWeight() {
                 m = parseFloat(match[1].replace(",", "")); 
 				m += parseFloat(match[2]) / 16;
             }
-            console.log(match);
-            Conversion.poundsToGrams(m);
+
+            m = Conversion.poundsToGrams(m);
 			var math = (m < 500) ? "~" : "";
             if (m < 1000) math += Math.ceil(m) + "g";
             else  math += Math.ceil(m / 100) / 10 + "kg";
@@ -114,7 +114,7 @@ function convertImperialMiles() {
 	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,?\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:miles?)(?![ s]*\()/ig);
 	
 	$("body *").contents().filter(function() {
-		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
 		var text = original;
@@ -144,7 +144,7 @@ function convertImperialLength() {
 	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot) (?:(\d+)[ ]?(?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch))(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
-		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a").length == 0;
+		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
 		var text = original;
