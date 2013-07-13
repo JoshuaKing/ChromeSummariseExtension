@@ -1,3 +1,5 @@
 self.addEventListener('message', function(e) {
-  self.postMessage(e.data);
+	self.postMessage("Bye from worker!");
+	self.close();
+	//self.postMessage(new Summariser());
 }, false);

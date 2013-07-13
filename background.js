@@ -25,6 +25,8 @@ chrome.runtime.onMessage.addListener(
 			var variables = JSON.parse(localStorage["variables"]);
 			variables[request.key] = request.value;
 			localStorage["variables"] = JSON.stringify(variables);
+		} else if (request.type == "getWorker") {
+			createWorker(request.value, request.callback);
 		}
 	}
 );
@@ -41,4 +43,11 @@ function summariseSelected(info, tab) {
 		"type": "summariseSelected",
 		"selectedText": info.selectionText
 	});
+}
+
+
+function createWorker(val, callback) {
+	var worker = new Worker(chrome.extension.getURL("parse.js"));
+	worker.addEventListener('message', callback, false);
+	worker.postMessage(val);
 }

@@ -40,23 +40,24 @@ Conversion.poundsToGrams = function(f) {
 }
 
 function scanConvert() {
+	if (variables.stats) {
+		parsePage();
+	}
+	
 	if (variables.imperial) {
         convertImperialLength();
         convertImperialMiles();
         convertImperialWeight();
     }
-	
-	if (variables.stats) {
-		parsePage();
-	}
 }
 
 function parsePage() {
-	$("p").contents().each(function() {
-		var worker = new Worker('parse.js');
+	chrome.runtime.sendMessage({type: "getWorker", value: "Hello, World!"});
+	/*$("p").contents().each(function() {
+		var worker = new Worker(chrome.extension.getURL("parse.js"));
 		worker.addEventListener('message', buildPage, false);
-		console.log($(this).text());
-	});
+		worker.postMessage($(this).text());
+	});*/
 }
 
 function buildPage(e) {
