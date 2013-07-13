@@ -70,7 +70,7 @@ function convertHtml(text, input, result, from, to) {
 
 
 function convertImperialWeight() {
-	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?\b|oz)(?![ ]?\()|(?:(\d+[\d,]+)[ ]?(?:lbs?\b))(?![ ]?\()|(?:(?:(\d+(?:\.\d+)?)[ ]?(?:oz|ounces?\b))(?![ ]?\()/ig);
+	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?\b|oz)(?![ ]?\()|(\d+[\d,]*)[ ]?(?:lbs?\b)(?![ ]?\()|(\d+(?:\.\d+)?)[ ]?(?:oz|ounces?\b)(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
