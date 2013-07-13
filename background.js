@@ -10,13 +10,15 @@ chrome.runtime.onMessage.addListener(
 					percent: 0.3,
 					max: 6,
 					min: 3,
-					imperial: true
+					imperial: true,
+					stats: true
 				});
 			}
 			var variables = JSON.parse(localStorage["variables"]);
 			
 			/* For new variables */
 			if (variables.imperial == "undefined") variables.imperial = true;
+			if (variables.stats == "undefined") variables.stats = true;
 			
 			sendResponse(variables);
 		} else if (request.type == "setVar") {

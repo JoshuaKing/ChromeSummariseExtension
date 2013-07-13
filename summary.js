@@ -2,6 +2,7 @@ var domain = "";
 var url = "";
 var variables = {};
 var done = 0;
+var numParts = 0;
 
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	domain = document.domain;
@@ -44,6 +45,22 @@ function scanConvert() {
         convertImperialMiles();
         convertImperialWeight();
     }
+	
+	if (variables.stats) {
+		parsePage();
+	}
+}
+
+function parsePage() {
+	$("p").contents().each(function() {
+		var worker = new Worker('parse.js');
+		worker.addEventListener('message', buildPage, false);
+		console.log($(this).text());
+	});
+}
+
+function buildPage(e) {
+	console.log("Build another part of page: " + e.data);
 }
 
 function convertHtml(text, input, result, from, to) {
@@ -143,10 +160,9 @@ function convertImperialMiles() {
 function convertImperialLength() {
 	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot) (?:(\d+)[ ]?(?:inch|in|inches)\b)?(?![ ]?\()|(?:(\d+(?:\.\d+)?)[ ]?(?:inch|inches)\b)(?![ ]?\()/ig);
 	
-	var elements = $("body *").contents().filter(function() {
+	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
-	});
-	elements.each(function() {
+	}).each(function() {
 		var original = $(this).text();
 		var text = original;
 		while (match = impLength.exec(text)) {
