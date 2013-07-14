@@ -27,6 +27,8 @@ chrome.runtime.onMessage.addListener(
 			localStorage["variables"] = JSON.stringify(variables);
 		} else if (request.type == "getWorker") {
 			createWorker(request.value, request.callback);
+		} else if (request.type == "parsePart") {
+			sendResponse(parsePart(request.value));
 		}
 	}
 );
@@ -37,6 +39,49 @@ chrome.contextMenus.create({
 	"id": "summarize",
 	"onclick": summariseSelected
 });
+
+function parsePart(paragraph) {
+	var summariser = new Summariser();
+	summariser.setString(paragraph);
+	summariser.tokenize();
+	var structure = summariser.sentence_tokenize();
+	var characterTree = parseStructure(structure, new Array());
+}
+
+function parseStructure(structure, tree) {
+	var ss = structure.getStructure();
+	for (var i = 0; i < ss.length; i++) {
+		var t = ss[i].value;
+		if (ss[i].token == SenSym.TOKEN) {
+			if (t.value.match(/^[a-z'-]+$/i)) {
+				var word = t.value;
+				var finished = false;
+				while (i + 1 < ss.length && !finished) {
+					if (ss[i + 1].token != SenSym.TOKEN) {
+						finished = true;
+						continue;
+					}
+					
+					var next = ss[i + 1].value.value;
+					if (next.match(/^[a-z0-9.-]+$/i)) {
+						i++;
+						word += next;
+					} else {
+						finished = true;
+						continue;
+					}
+				}
+				
+				console.log(word);
+				//for (var j = 0; j < word.length; j++) {
+				
+				//}
+			}
+		} else if (ss[i].token == SenSym.BRACKETQUOTE || ss[i].token == SenSym.QUOTATION) {
+			tree = parseStructure(t, tree);
+		}
+	}
+}
 
 function summariseSelected(info, tab) {
 	chrome.tabs.sendMessage(tab.id, {

@@ -52,7 +52,7 @@ function scanConvert() {
 }
 
 function parsePage() {
-	chrome.runtime.sendMessage({type: "getWorker", value: "Hello, World!"});
+	chrome.runtime.sendMessage({type: "parsePart", value: "Hello, World! This is Vier_Scar on 2nd-to-none, none-the-less."}, buildPage);
 	/*$("p").contents().each(function() {
 		var worker = new Worker(chrome.extension.getURL("parse.js"));
 		worker.addEventListener('message', buildPage, false);

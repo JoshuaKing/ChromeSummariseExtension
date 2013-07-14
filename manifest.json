@@ -10,7 +10,7 @@
 	},
 	
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": ["background.js", "summariser.js", "parse.js"]
 	},
 	
 	"options_page": "options.html",
@@ -18,7 +18,7 @@
 	"content_scripts": [{
 		"matches": ["http://*/*", "https://*/*"],
 		"css": ["summary.css"],
-		"js": ["jquery.js", "summariser.js", "summary.js", "parse.js"]
+		"js": ["jquery.js", "summariser.js", "summary.js"]
 	}],
 	
 	"permissions": [
