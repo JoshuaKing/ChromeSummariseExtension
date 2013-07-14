@@ -52,7 +52,7 @@ function scanConvert() {
 }
 
 function parsePage() {
-	chrome.runtime.sendMessage({type: "parsePart", value: "Hello, World! This is Vier_Scar on 2nd-to-none, none-the-less."}, buildPage);
+	chrome.runtime.sendMessage({type: "parsePart", value: "Hello, World! He is Vier_Scar on 2nd-to-none, none-the-less hi help."}, buildPage);
 	/*$("p").contents().each(function() {
 		var worker = new Worker(chrome.extension.getURL("parse.js"));
 		worker.addEventListener('message', buildPage, false);
@@ -60,8 +60,8 @@ function parsePage() {
 	});*/
 }
 
-function buildPage(e) {
-	console.log("Build another part of page: " + e.data);
+function buildPage(response) {
+	console.log("Build another part of page: " + response);
 }
 
 function convertHtml(text, input, result, from, to) {

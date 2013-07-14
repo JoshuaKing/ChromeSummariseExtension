@@ -53,34 +53,34 @@ function parseStructure(structure, tree) {
 	for (var i = 0; i < ss.length; i++) {
 		var t = ss[i].value;
 		if (ss[i].token == SenSym.TOKEN) {
-			if (t.value.match(/^[a-z'-]+$/i)) {
-				var word = t.value;
-				var finished = false;
-				while (i + 1 < ss.length && !finished) {
-					if (ss[i + 1].token != SenSym.TOKEN) {
-						finished = true;
-						continue;
-					}
-					
-					var next = ss[i + 1].value.value;
-					if (next.match(/^[a-z0-9.-]+$/i)) {
-						i++;
-						word += next;
-					} else {
-						finished = true;
-						continue;
-					}
-				}
-				
+			if (t.token == Tok.WORD) {
+				var word = t.value;				
 				console.log(word);
-				//for (var j = 0; j < word.length; j++) {
 				
-				//}
+				var point = tree;
+				for (var j = 0; j < word.length; j++) {
+					var c = word.charAt(j);
+					if (typeof point[c] == 'undefined') {
+						point[c] = new Array();
+						point[c]["total"] = 0;
+						point[c]["sum"] = 0;
+						point[c]["finish"] = 0;
+					}
+					point = point[word.charAt(j)];
+					point["sum"]++;
+				}
+				point["total"]++;
+				
+				if (i + 2 < ss.length && ss[i + 2].token == SenSym.TOKEN && ss[i + 2].value.token == Tok.EOL) {
+					point["finish"]++;
+				}
 			}
 		} else if (ss[i].token == SenSym.BRACKETQUOTE || ss[i].token == SenSym.QUOTATION) {
 			tree = parseStructure(t, tree);
 		}
 	}
+		
+	return tree;
 }
 
 function summariseSelected(info, tab) {
