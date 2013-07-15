@@ -41,31 +41,33 @@ Conversion.poundsToGrams = function(f) {
 
 function scanConvert() {
 	if (variables.stats) {
-		//parsePage();
+		parsePage();
 	}
 	
 	if (variables.imperial) {
         convertImperialLength();
-        //convertImperialMiles();
-        //convertImperialWeight();
+        convertImperialMiles();
+        convertImperialWeight();
     }
 }
 
 function parsePage() {
-	var tree = {};
-	$("p").filter(function() {
-		return $(this).parents("iframe,frame").length == 0;
-	}).each(function() {
-		console.log("paragraph: " + $(this).text());
+	var tree;
+	var paragraphs = $.makeArray($("p"));
+	
+	this.createTree = function(response) {
+		this.tree = response.value;
+		if (paragraphs.length == 0) { /*console.log(this.tree); */return;}
+		
+		var p = $(paragraphs.shift()).text();
 		chrome.runtime.sendMessage({
 			type: "parsePart",
-			value: $(this).text(),
-			tree: tree
-		}, function(response) {
-			tree = response.value;
-		});
-	});
-	console.log(tree);
+			value: p,
+			tree: this.tree
+		}, this.createTree);
+	}
+	
+	this.createTree({value: {}});
 }
 
 function buildPage(response) {
@@ -98,7 +100,7 @@ function convertHtml(text, input, result, from, to) {
 function convertImperialWeight() {
 	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?\b|oz)(?![ ]?\()|(\d+[\d,]*)[ ]?(?:lbs?\b)(?![ ]?\()|(\d+(?:\.\d+)?)[ ]?(?:oz|ounces?\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
@@ -139,7 +141,7 @@ function convertImperialWeight() {
 function convertImperialMiles() {
 	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,?\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:miles?\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
