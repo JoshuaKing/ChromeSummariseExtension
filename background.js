@@ -88,10 +88,3 @@ function summariseSelected(info, tab) {
 		"selectedText": info.selectionText
 	});
 }
-
-
-function createWorker(val, callback) {
-	var worker = new Worker(chrome.extension.getURL("parse.js"));
-	worker.addEventListener('message', callback, false);
-	worker.postMessage(val);
-}

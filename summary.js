@@ -41,25 +41,28 @@ Conversion.poundsToGrams = function(f) {
 
 function scanConvert() {
 	if (variables.stats) {
-		parsePage();
+		//parsePage();
 	}
 	
 	if (variables.imperial) {
         convertImperialLength();
-        convertImperialMiles();
-        convertImperialWeight();
+        //convertImperialMiles();
+        //convertImperialWeight();
     }
 }
 
 function parsePage() {
 	var tree = {};
-	$("p").contents().each(function() {
+	$("p").filter(function() {
+		return $(this).parents("iframe,frame").length == 0;
+	}).each(function() {
+		console.log("paragraph: " + $(this).text());
 		chrome.runtime.sendMessage({
 			type: "parsePart",
 			value: $(this).text(),
 			tree: tree
 		}, function(response) {
-			tree = response;
+			tree = response.value;
 		});
 	});
 	console.log(tree);
@@ -164,9 +167,9 @@ function convertImperialMiles() {
 }
 
 function convertImperialLength() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot) (?:(\d+)[ ]?(?:inch|in|inches)\b)?(?![ ]?\()|(?:(\d+(?:\.\d+)?)[ ]?(?:inch|inches)\b)(?![ ]?\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)\b(?: (\d+)[ ]?(?:inch|in|inches)\b)?(?![ ]?\()|(?:(\d+(?:\.\d+)?)[ ]?(?:inch|inches)\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
