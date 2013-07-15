@@ -52,12 +52,17 @@ function scanConvert() {
 }
 
 function parsePage() {
-	chrome.runtime.sendMessage({type: "parsePart", value: "Hello, World! He is Vier_Scar on 2nd-to-none, none-the-less hi help."}, buildPage);
-	/*$("p").contents().each(function() {
-		var worker = new Worker(chrome.extension.getURL("parse.js"));
-		worker.addEventListener('message', buildPage, false);
-		worker.postMessage($(this).text());
-	});*/
+	var tree = {};
+	$("p").contents().each(function() {
+		chrome.runtime.sendMessage({
+			type: "parsePart",
+			value: $(this).text(),
+			tree: tree
+		}, function(response) {
+			tree = response;
+		});
+	});
+	console.log(tree);
 }
 
 function buildPage(response) {

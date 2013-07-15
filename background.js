@@ -28,7 +28,8 @@ chrome.runtime.onMessage.addListener(
 		} else if (request.type == "getWorker") {
 			createWorker(request.value, request.callback);
 		} else if (request.type == "parsePart") {
-			sendResponse(parsePart(request.value));
+			var response = parsePart(request.value, request.tree);
+			sendResponse(response);
 		}
 	}
 );
@@ -40,12 +41,13 @@ chrome.contextMenus.create({
 	"onclick": summariseSelected
 });
 
-function parsePart(paragraph) {
+function parsePart(paragraph, addToTree) {
 	var summariser = new Summariser();
 	summariser.setString(paragraph);
 	summariser.tokenize();
 	var structure = summariser.sentence_tokenize();
-	var characterTree = parseStructure(structure, new Array());
+	var s = parseStructure(structure, addToTree);
+	return {value: s};
 }
 
 function parseStructure(structure, tree) {
@@ -61,18 +63,15 @@ function parseStructure(structure, tree) {
 				for (var j = 0; j < word.length; j++) {
 					var c = word.charAt(j);
 					if (typeof point[c] == 'undefined') {
-						point[c] = new Array();
-						point[c]["total"] = 0;
-						point[c]["sum"] = 0;
-						point[c]["finish"] = 0;
+						point[c] = {total: 0, sum: 0, finish: 0};
 					}
 					point = point[word.charAt(j)];
-					point["sum"]++;
+					point.sum++;
 				}
-				point["total"]++;
+				point.total++;
 				
 				if (i + 2 < ss.length && ss[i + 2].token == SenSym.TOKEN && ss[i + 2].value.token == Tok.EOL) {
-					point["finish"]++;
+					point.finish++;
 				}
 			}
 		} else if (ss[i].token == SenSym.BRACKETQUOTE || ss[i].token == SenSym.QUOTATION) {

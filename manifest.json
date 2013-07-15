@@ -10,7 +10,7 @@
 	},
 	
 	"background": {
-		"scripts": ["background.js", "summariser.js", "parse.js"]
+		"scripts": ["background.js", "summariser.js"]
 	},
 	
 	"options_page": "options.html",
