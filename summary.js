@@ -99,9 +99,8 @@ function convertHtml(text, input, result, from, to) {
 
 function convertImperialWeight() {
 	var impLength = new RegExp(/(\d+)[ -]?(?:pounds?|lbs?),? (\d+)[ -]?(?:ounces?|oz)(?![ s]*\()|(?:(\d+[\d,]+)[ ]?(?:lbs?))(?![ s]*\()|(?:(\d+)[ -]?(?:oz|ounces?))(?![ s]*\()/ig);
-	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?\b|oz)(?![ ]?\()|(\d+[\d,]*)[ ]?(?:lbs?\b)(?![ ]?\()|(\d+(?:\.\d+)?)[ ]?(?:oz|ounces?\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
@@ -140,9 +139,9 @@ function convertImperialWeight() {
 }
 
 function convertImperialMiles() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,?\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:miles?)(?![ s]*\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,?\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:miles?\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
@@ -170,9 +169,9 @@ function convertImperialMiles() {
 }
 
 function convertImperialLength() {
-	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot) (?:(\d+)[ ]?(?:inch|in))?(?![ ]?\()|(?:(\d+)[ ]?(?:inch))(?![ ]?\()/ig);
+	var impLength = new RegExp(/([1-9](?:\d{0,2})(?:,\d{3})*(?:\.\d*[1-9])?|0?\.\d*[1-9])[ ]?(?:feet|ft|foot)\b(?: (\d+)[ ]?(?:inch|in|inches)\b)?(?![ ]?\()|(?:(\d+(?:\.\d+)?)[ ]?(?:inch|inches)\b)(?![ ]?\()/ig);
 	
-	$("body *").contents().filter(function() {
+	$("div, span, p").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
 	}).each(function() {
 		var original = $(this).text();
