@@ -74,7 +74,7 @@ function parsePart(paragraph, addToTree) {
 
 function parseStructure(structure, tree) {
 	var ss = structure.getStructure();
-	for (var i = 0; i < ss.length; i++) {
+	/*for (var i = 0; i < ss.length; i++) {
 		var t = ss[i].value;
 		if (ss[i].token == SenSym.TOKEN) {
 			if (t.token == Tok.WORD) {
@@ -100,7 +100,7 @@ function parseStructure(structure, tree) {
 			tree = parseStructure(t, tree);
 		}
 	}
-		
+	*/
 	return tree;
 }
 

@@ -72,7 +72,7 @@ function parsePage() {
 	}
 	
 	this.delay = function(response) {
-		setTimeout(this.createTree, 30, response);
+		setTimeout(this.createTree, 10, response);
 	}
 	
 	this.createTree({value: {}});
