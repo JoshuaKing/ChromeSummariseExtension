@@ -2,6 +2,7 @@ var domain = "";
 var url = "";
 var variables = {};
 var done = 0;
+var numParts = 0;
 
 chrome.runtime.sendMessage({type: "getUrl"}, function(response) {
 	domain = document.domain;
@@ -39,11 +40,38 @@ Conversion.poundsToGrams = function(f) {
 }
 
 function scanConvert() {
+	if (variables.stats) {
+		parsePage();
+	}
+	
 	if (variables.imperial) {
         convertImperialLength();
         convertImperialMiles();
         convertImperialWeight();
     }
+}
+
+function parsePage() {
+	var tree;
+	var paragraphs = $.makeArray($("p"));
+	
+	this.createTree = function(response) {
+		this.tree = response.value;
+		if (paragraphs.length == 0) { /*console.log(this.tree); */return;}
+		
+		var p = $(paragraphs.shift()).text();
+		chrome.runtime.sendMessage({
+			type: "parsePart",
+			value: p,
+			tree: this.tree
+		}, this.createTree);
+	}
+	
+	this.createTree({value: {}});
+}
+
+function buildPage(response) {
+	console.log("Build another part of page: " + response);
 }
 
 function convertHtml(text, input, result, from, to) {
@@ -71,6 +99,7 @@ function convertHtml(text, input, result, from, to) {
 
 function convertImperialWeight() {
 	var impLength = new RegExp(/(\d+)[ -]?(?:pounds?|lbs?),? (\d+)[ -]?(?:ounces?|oz)(?![ s]*\()|(?:(\d+[\d,]+)[ ]?(?:lbs?))(?![ s]*\()|(?:(\d+)[ -]?(?:oz|ounces?))(?![ s]*\()/ig);
+	var impLength = new RegExp(/(\d+)[ ]?(?:pounds?|lbs?),? (\d+)[ ]?(?:ounces?\b|oz)(?![ ]?\()|(\d+[\d,]*)[ ]?(?:lbs?\b)(?![ ]?\()|(\d+(?:\.\d+)?)[ ]?(?:oz|ounces?\b)(?![ ]?\()/ig);
 	
 	$("body *").contents().filter(function() {
 		return this.nodeType == 3 && $(this).parents("h1,h2,h3,header,script,a,style").length == 0;
