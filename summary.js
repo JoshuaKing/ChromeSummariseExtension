@@ -57,7 +57,10 @@ function parsePage() {
 	
 	this.createTree = function(response) {
 		this.tree = response.value;
-		if (paragraphs.length == 0) { /*console.log(this.tree); */return;}
+		if (paragraphs.length == 0) {
+			finishedPage(this.tree);
+			return;
+		}
 		
 		var p = $(paragraphs.shift()).text();
 		chrome.runtime.sendMessage({
@@ -70,8 +73,16 @@ function parsePage() {
 	this.createTree({value: {}});
 }
 
-function buildPage(response) {
-	console.log("Build another part of page: " + response);
+function finishedPage(tree) {
+	chrome.runtime.sendMessage({
+		type: "submitParse",
+		value: {
+			domain: domain,
+			url: url,
+			time: Math.round(Date.now() / 1000),
+			tree: tree
+		}
+	});
 }
 
 function convertHtml(text, input, result, from, to) {

@@ -1,3 +1,5 @@
+var parses = new Array();
+
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		if (request.type == "getUrl") {
@@ -17,22 +19,42 @@ chrome.runtime.onMessage.addListener(
 			var variables = JSON.parse(localStorage["variables"]);
 			
 			/* For new variables */
-			if (variables.imperial == "undefined") variables.imperial = true;
-			if (variables.stats == "undefined") variables.stats = true;
+			if (typeof variables.imperial == "undefined") variables.imperial = true;
+			if (typeof variables.stats == "undefined") variables.stats = true;
+			localStorage["variables"] = JSON.stringify(variables);
 			
 			sendResponse(variables);
 		} else if (request.type == "setVar") {
 			var variables = JSON.parse(localStorage["variables"]);
 			variables[request.key] = request.value;
 			localStorage["variables"] = JSON.stringify(variables);
-		} else if (request.type == "getWorker") {
-			createWorker(request.value, request.callback);
 		} else if (request.type == "parsePart") {
 			var response = parsePart(request.value, request.tree);
 			sendResponse(response);
+		} else if (request.type == "submitParse") {
+			parses.push(request.value);
+			//if (parses.length % 10 != 0) return
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "http://cub.freshte.ch");
+			xhr.onload = xhrSuccessful;
+			xhr.onerror = xhrError;
+			xhr.send();
 		}
 	}
 );
+
+function xhrSuccessful(a, b) {
+	console.log("success");
+	console.log(a);
+	console.log(b);
+}
+
+function xhrError(a, b) {
+	console.log("error");
+	console.log(a);
+	console.log(b);
+}
+
 
 chrome.contextMenus.create({
 	"title": "Summarise Selected",
@@ -57,7 +79,7 @@ function parseStructure(structure, tree) {
 		if (ss[i].token == SenSym.TOKEN) {
 			if (t.token == Tok.WORD) {
 				var word = t.value;				
-				console.log(word);
+				//console.log(word);
 				
 				var point = tree;
 				for (var j = 0; j < word.length; j++) {
