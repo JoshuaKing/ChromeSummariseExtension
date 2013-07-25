@@ -56,6 +56,7 @@ function parsePage() {
 	var paragraphs = $.makeArray($("p"));
 	
 	this.createTree = function(response) {
+		
 		this.tree = response.value;
 		if (paragraphs.length == 0) {
 			finishedPage(this.tree);
@@ -67,7 +68,11 @@ function parsePage() {
 			type: "parsePart",
 			value: p,
 			tree: this.tree
-		}, this.createTree);
+		}, this.delay);
+	}
+	
+	this.delay = function(response) {
+		setTimeout(this.createTree, 30, response);
 	}
 	
 	this.createTree({value: {}});
