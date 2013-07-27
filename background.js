@@ -3,7 +3,10 @@ var parses = new Array();
 chrome.runtime.onMessage.addListener(
 	function(request, sender, sendResponse) {
 		if (request.type == "getUrl") {
-			sendResponse({url: sender.tab.url});
+            if (typeof sender.url != "undefined")
+			    sendResponse({url: sender.tab.url});
+            else
+                sendResponse({url: "unavailable"});
 		} else if (request.type == "setVariables") {
 			localStorage["variables"] = JSON.stringify(request.values);
 		} else if (request.type == "getVariables") {
@@ -29,32 +32,30 @@ chrome.runtime.onMessage.addListener(
 			variables[request.key] = request.value;
 			localStorage["variables"] = JSON.stringify(variables);
 		} else if (request.type == "parsePart") {
-			var response = parsePart(request.value, request.tree);
+			var response = parsePart(request.value, request.list);
 			sendResponse(response);
 		} else if (request.type == "submitParse") {
 			parses.push(request.value);
-			//if (parses.length % 10 != 0) return
+			if (parses.length % 2 != 0) return;
 			var xhr = new XMLHttpRequest();
-			xhr.open("GET", "http://cub.freshte.ch");
-			xhr.onload = xhrSuccessful;
-			xhr.onerror = xhrError;
-			xhr.send();
+			xhr.open("POST", "http://cub.freshte.ch/stats.php");
+			xhr.onload = xhrFinished;
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+			xhr.send("stats=" + JSON.stringify(parses));
 		}
 	}
 );
 
-function xhrSuccessful(a, b) {
+function xhrFinished(resp) {
 	console.log("success");
-	console.log(a);
-	console.log(b);
+	var xhr = resp.currentTarget;
+    if (xhr.status == 200) {
+       parses = new Array(); 
+    } else {
+        console.log("Failed to send");
+        if (parses.length >= 30) parses = new Array();
+    }
 }
-
-function xhrError(a, b) {
-	console.log("error");
-	console.log(a);
-	console.log(b);
-}
-
 
 chrome.contextMenus.create({
 	"title": "Summarise Selected",
@@ -63,12 +64,16 @@ chrome.contextMenus.create({
 	"onclick": summariseSelected
 });
 
-function parsePart(paragraph, addToTree) {
+function parsePart(paragraph, addToList) {
 	var summariser = new Summariser();
 	summariser.setString(paragraph);
 	summariser.tokenize();
 	var structure = summariser.sentence_tokenize();
-	var s = parseStructure(structure, addToTree);
+	/**
+    var s = parseStructure(structure, addToTree);
+    /*/
+    var s = summariser.count_words(structure, addToList);
+    /**/
 	return {value: s};
 }
 

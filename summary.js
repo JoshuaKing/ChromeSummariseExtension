@@ -52,14 +52,14 @@ function scanConvert() {
 }
 
 function parsePage() {
-	var tree;
+	var list;
 	var paragraphs = $.makeArray($("p"));
 	
-	this.createTree = function(response) {
+	this.createList = function(response) {
 		
-		this.tree = response.value;
+		this.list = response.value;
 		if (paragraphs.length == 0) {
-			finishedPage(this.tree);
+			finishedPage(this.list);
 			return;
 		}
 		
@@ -67,25 +67,28 @@ function parsePage() {
 		chrome.runtime.sendMessage({
 			type: "parsePart",
 			value: p,
-			tree: this.tree
+			list: this.list
 		}, this.delay);
 	}
 	
 	this.delay = function(response) {
-		setTimeout(this.createTree, 10, response);
+		setTimeout(this.createList, 5, response);
 	}
 	
-	this.createTree({value: {}});
+	//this.createList({value: {}});
+    finishedPage();
 }
 
-function finishedPage(tree) {
+function finishedPage(list) {
+    if (url == "unavailable") return;
+
 	chrome.runtime.sendMessage({
 		type: "submitParse",
 		value: {
 			domain: domain,
 			url: url,
-			time: Math.round(Date.now() / 1000),
-			tree: tree
+            time: Math.round(Date.now() / 1000)
+			//list: list
 		}
 	});
 }
