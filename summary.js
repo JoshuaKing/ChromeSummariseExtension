@@ -86,7 +86,7 @@ function finishedPage(list) {
 		type: "submitParse",
 		value: {
 			domain: domain,
-			url: url,
+			url: encodeURIComponent(url),
             time: Math.round(Date.now() / 1000)
 			//list: list
 		}

@@ -36,7 +36,7 @@ chrome.runtime.onMessage.addListener(
 			sendResponse(response);
 		} else if (request.type == "submitParse") {
 			parses.push(request.value);
-			if (parses.length % 2 != 0) return;
+			if (parses.length % 10 != 0) return;
 			var xhr = new XMLHttpRequest();
 			xhr.open("POST", "http://cub.freshte.ch/stats.php");
 			xhr.onload = xhrFinished;
@@ -47,12 +47,10 @@ chrome.runtime.onMessage.addListener(
 );
 
 function xhrFinished(resp) {
-	console.log("success");
 	var xhr = resp.currentTarget;
     if (xhr.status == 200) {
        parses = new Array(); 
     } else {
-        console.log("Failed to send");
         if (parses.length >= 30) parses = new Array();
     }
 }
